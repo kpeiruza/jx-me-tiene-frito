@@ -1,0 +1,30 @@
+apiVersion: skaffold/v1beta2
+kind: Config
+build:
+  artifacts:
+  - image: changeme
+    context: .
+    docker: {}
+  tagPolicy:
+    envTemplate:
+      template: '{{.DOCKER_REGISTRY}}/kpeiruza/jx-me-tiene-frito:{{.VERSION}}'
+  local: {}
+deploy:
+  kubectl: {}
+profiles:
+- name: dev
+  build:
+    artifacts:
+    - docker: {}
+    tagPolicy:
+      envTemplate:
+        template: '{{.DOCKER_REGISTRY}}/kpeiruza/jx-me-tiene-frito:{{.DIGEST_HEX}}'
+    local: {}
+  deploy:
+    helm:
+      releases:
+      - name: jx-me-tiene-frito
+        chartPath: charts/jx-me-tiene-frito
+        setValueTemplates:
+          image.repository: '{{.DOCKER_REGISTRY}}/kpeiruza/jx-me-tiene-frito'
+          image.tag: '{{.DIGEST_HEX}}'
